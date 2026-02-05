@@ -62,31 +62,27 @@ class LRUCache {
     return false;
   }
 
-  _validateKey(key) {
-    if (typeof key !== "number")
-      throw new Error("Invalid key type must be integer number");
-
-    return;
-  }
-
   get(key) {
-    this._validateKey(key);
-
     const item = this.cache.find((it) => it.key === key);
     if (!item) return undefined;
 
     if (this._checkExpiration(item)) return undefined;
     this._moveItem(item);
-    return item.value || -1;
+    return item.value;
   }
 
   put(key, value, ttl = this.defaultTTL) {
-    this._validateKey(key);
+    if (typeof key !== "number")
+      throw new Error("Invalid key type must be integer number");
 
     let item = this.cache.find((it) => it.key === key);
     const expiresAt = Date.now() + ttl;
 
-    if (item) return this._moveItem({ ...item, value, expiresAt });
+    if (item) {
+      const idx = this.cache.indexOf(item);
+      this.cache.splice(idx, 1, new LRUCacheData(key, value, expiresAt));
+      return this._moveItem({ ...item, value, expiresAt });
+    }
 
     item = new LRUCacheData(key, value, expiresAt);
     this.cache.push(item);

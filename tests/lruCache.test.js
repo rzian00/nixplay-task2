@@ -78,17 +78,13 @@ describe("LRUCache", () => {
     expect(cache.get(1)).toBe(10);
   });
 
-  test("validate string keys", () => {
+  test("throws if key is string", () => {
     const cache = new LRUCache(2);
 
-    cache.put("a", 1).toThrow();
-    cache.put("b", 2).toThrow();
+    cache.put(1, 1);
+    expect(() => cache.put("b", 2)).toThrow();
 
-    expect(cache.get("a")).toThrow();
-
-    cache.put("c", 3); // evict b
-
-    expect(cache.get("b")).toThrow();
+    expect(cache.get(1)).toBe(1);
   });
 
   test("throws if capacity <= 0", () => {
